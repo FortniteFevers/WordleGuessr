@@ -62,18 +62,42 @@ def start():
             #sumofwords += 1
             #print(f'Found possible word: {i}')
     
-    print('\nHow much good letters (green) in this word? (Enter a number)')
+    print('\nHow much perfect letters (green) are in this word? (Enter a number)')
+    ask = int(input('>> '))
+
+    perfect_letters = ''
+    for i in range(ask):
+        print('\nWhat is this perfect letter? (Example: A)')
+        perfect_letter = input('>> ')
+
+        print('\nWhat spot from 1-5 is this letter in? (Enter a number 1-5)')
+        perfect_letter_spot = int(input('>> '))
+        for i in new_list:
+            if perfect_letter in i[0:perfect_letter_spot]:
+                pass # Word is good. 
+            else:
+                new_list.remove(i)
+
+        perfect_letters += perfect_letter.lower()
+        
+    for i in new_list:
+        if any(ext in perfect_letters for ext in i):
+            pass #Word is good
+        else:
+            if i in new_list:
+                new_list.remove(i)
+
+    print('\nHow much good letters (yellow) are in this word? (Enter a number)')
     ask = int(input('>> '))
 
     good_letters = ''
+
     for i in range(ask):
         print('\nWhat is this good letter? (Example: A)')
         good_letter = input('>> ')
 
-        print('\nWhat spot from 1-5 is this letter in? (Enter a number 1-5)')
-        good_letter_spot = int(input('>> '))
         for i in new_list:
-            if good_letter in i[0:good_letter_spot]:
+            if good_letter in i:
                 pass # Word is good. 
             else:
                 new_list.remove(i)
@@ -87,8 +111,8 @@ def start():
             if i in new_list:
                 new_list.remove(i)
 
-    sumofwords = len(new_list)
 
+    umofwords = len(new_list)
     print(f'\nFound {sumofwords} possible words with this combo. Do you want to continue?\n(1) Yes\n(2) No')
     ask = input('>> ')
 
