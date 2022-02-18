@@ -1,10 +1,23 @@
 import json
 from datetime import date
+import random
+from colorama import *
 
 today = date.today()
 d1 = today.strftime("%m/%d/%Y")
 
-print(
+"""
+
+Word Example: 
+
+Current word: Means
+MNCRD
+
+
+"""
+
+print(Fore.CYAN+
+      
     """
     
 ░██╗░░░░░░░██╗░█████╗░██████╗░██████╗░██╗░░░░░███████╗  ░██████╗░██╗░░░██╗███████╗░██████╗░██████╗██████╗░
@@ -14,29 +27,31 @@ print(
 ░░╚██╔╝░╚██╔╝░╚█████╔╝██║░░██║██████╔╝███████╗███████╗  ╚██████╔╝╚██████╔╝███████╗██████╔╝██████╔╝██║░░██║
 ░░░╚═╝░░░╚═╝░░░╚════╝░╚═╝░░╚═╝╚═════╝░╚══════╝╚══════╝  ░╚═════╝░░╚═════╝░╚══════╝╚═════╝░╚═════╝░╚═╝░░╚═╝
 """
+      
 )
 
-print(f'\nWelcome to Wordle on {d1}!')
+print(Fore.RESET+f'\nWelcome to Wordle on {d1}!')
+
+print('\n--- COMMANDS ---\n(1) Start the guessing program\n(2) Generate random word\n')
+ask = input('>> ')
 
 new_list = []
+real_list = []
 
-def continue_process():
-    f= open(f'words.txt', 'w')
+def random_word():
+    a_file = open(f"all_words.json", "r")
+    json_object = json.load(a_file)
+    a_file.close()
 
-    string = ''
-    for i in new_list:
-        string += f'{i}\n'
+    randomword = random.choice(json_object).title()
 
-    f.write(string)
-    f.close()
+    print(f'\nYour random word is: '+Fore.CYAN+randomword)
 
-    sumofwords = len(new_list)
-    print(f'\nThere are currently {sumofwords} possible words. I have added every one of those words into a file in this folder titled "words.txt", use one of them on Wordle to continue.')
-    
-    print('')
-
-    ask = input('Enter your chosen word: ')
-
+    print(Fore.RESET+'\nDo you want to pick another random word? (enter "y" if yes)')
+    ask = input('>> ')
+    ask = ask.lower()
+    if ask == 'y':
+        random_word()
 
 def start():
     print('\nWhat is your current word in wordle?')
@@ -45,8 +60,11 @@ def start():
         print('This word is not 5 characters! Make sure to enter a 5 letter word.\nI will be restarting the process now.\n\n')
         return start()
 
+    #print(str(len(new_list)))
+
     print('\nWhat are the bad letters in this word? (Example: ABC)')
     bad_letters = input('>> ')
+    bad_letters = bad_letters.lower()
     
     a_file = open(f"all_words.json", "r")
     json_object = json.load(a_file)
@@ -55,69 +73,82 @@ def start():
     sumofwords = 0
 
     for i in json_object:
-        if any(ext in bad_letters for ext in i):
-            pass
+        if any((c in bad_letters) for c in i):
+            pass # There are bad letters here
         else:
-            new_list.append(i.lower())
-            #sumofwords += 1
-            #print(f'Found possible word: {i}')
+            new_list.append(i)
+            print('added word')
     
-    print('\nHow much perfect letters (green) are in this word? (Enter a number)')
-    ask = int(input('>> '))
+    # Currently, new_list only includes the words that does not have the bad letters.
 
-    perfect_letters = ''
-    for i in range(ask):
-        print('\nWhat is this perfect letter? (Example: A)')
-        perfect_letter = input('>> ')
+    #print(str(len(new_list)))
+    print(Fore.GREEN+'\nHow much perfect letters (green) are in this word? (Enter a number)')
+    ask = int(input('>> ')) # Here, we ask for how much perfect letters are in the word.
 
-        print('\nWhat spot from 1-5 is this letter in? (Enter a number 1-5)')
-        perfect_letter_spot = int(input('>> '))
-        for i in new_list:
-            if perfect_letter in i[0:perfect_letter_spot]:
-                pass # Word is good. 
-            else:
-                new_list.remove(i)
-
-        perfect_letters += perfect_letter.lower()
+    if ask != 0: # If the answer is not 0 green words.
+        for i in range(ask):
+            print(Fore.GREEN+'\nWhat is this perfect letter? (Example: A)')
+            perfect_letter = input('>> ')
+    
+            print('\nWhat spot from 1-5 is this letter in? (Enter a number 1-5)')
+            perfect_letter_spot = int(input('>> '))
+            for x in new_list:
+                if str(x)[perfect_letter_spot - 1] ==  perfect_letter.lower():
+                    pass # Word is good. 
+                    real_list.append(x) # We append this to a new list with only the words we need.
+                    
+                else:
+                    new_list.remove(str(x)) # We now removed the word in our list that doesn't have our perfect letter.
         
-    for i in new_list:
-        if any(ext in perfect_letters for ext in i):
-            pass #Word is good
-        else:
-            if i in new_list:
-                new_list.remove(i)
+    #print(str(len(real_list)))
 
-    print('\nHow much good letters (yellow) are in this word? (Enter a number)')
+    print(Fore.YELLOW+'\nHow much good letters (yellow) are in this word? (Enter a number)')
     ask = int(input('>> '))
-
-    good_letters = ''
 
     for i in range(ask):
         print('\nWhat is this good letter? (Example: A)')
         good_letter = input('>> ')
 
-        for i in new_list:
-            if good_letter in i:
-                pass # Word is good. 
+        print('\nWhat spot from 1-5 is this letter in? (Enter a number 1-5)')
+        good_letter_spot = int(input('>> '))
+
+        for i in real_list:
+            if str(i)[good_letter_spot - 1] ==  good_letter.lower(): # If good letter is in bad spot
+                real_list.remove(i)
             else:
-                new_list.remove(i)
+                pass
 
-        good_letters += good_letter.lower()
-        
-    for i in new_list:
-        if any(ext in good_letters for ext in i):
-            pass #Word is good
-        else:
-            if i in new_list:
-                new_list.remove(i)
+    if sumofwords == 0:
+        for i in new_list:
+            real_list.append(i)
 
+    sumofwords = len(real_list)
 
-    umofwords = len(new_list)
-    print(f'\nFound {sumofwords} possible words with this combo. Do you want to continue?\n(1) Yes\n(2) No')
+    print(Fore.RESET+f'\nFound {sumofwords} possible words with this combo. Do you want to continue?\n(1) Yes\n(2) No')
     ask = input('>> ')
-
+    
     if ask == '1':
-        continue_process()
+        f= open(f'words.txt', 'w')
+
+        string = ''
+        for i in real_list:
+            string += f'{i}\n'
+
+        f.write(string)
+        f.close()
+
+        sumofwords = len(real_list)
+        print(f'\nThere are currently {sumofwords} possible words. I have added every one of those words into a file in this directory titled "words.txt", use one of them on Wordle to continue.')
+        
+        print('')
+
+        print('Now, we are going to start again with the guessing process. Make sure to enter every bad/perfect/good letter.')
+        start()
         
     
-start()
+if ask == '1':
+    start()
+elif ask == '2':
+    random_word()
+else:
+    print(Fore.RED+'\nUnknown command!')
