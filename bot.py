@@ -2,6 +2,7 @@ import json
 from datetime import date
 import random
 from colorama import *
+init()
 
 today = date.today()
 d1 = today.strftime("%m/%d/%Y")
